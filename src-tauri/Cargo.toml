@@ -1,0 +1,26 @@
+[package]
+name = "val2026"
+version = "0.1.0"
+description = "Opinionskoll inför riksdagsvalet 2026"
+authors = ["jonaslarsson"]
+edition = "2021"
+
+[lib]
+name = "val2026_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.39", features = ["bundled", "chrono"] }
+reqwest = { version = "0.13", features = ["rustls"], default-features = false }
+scraper = "0.27"
+tokio = { version = "1", features = ["full"] }
+chrono = { version = "0.4", features = ["serde"] }
+anyhow = "1"
+regex = "1"
