@@ -1,6 +1,7 @@
 mod db;
 mod parties;
 mod sources;
+mod updater;
 
 use db::{Db, NewPoll, PartyResult, Poll};
 use serde::Serialize;
@@ -73,6 +74,11 @@ fn delete_poll(state: tauri::State<AppState>, id: i64) -> Result<(), String> {
     state.db.delete_poll(id).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn check_update() -> Result<updater::UpdateInfo, String> {
+    updater::check().await.map_err(|e| e.to_string())
+}
+
 #[allow(dead_code)]
 fn _ensure_types(_: PartyResult) {}
 
@@ -95,6 +101,7 @@ pub fn run() {
             refresh_polls,
             add_manual_poll,
             delete_poll,
+            check_update,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

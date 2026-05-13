@@ -12,6 +12,23 @@ import ThresholdRisk from "./components/ThresholdRisk.vue";
 import CoalitionBuilder from "./components/CoalitionBuilder.vue";
 import RiksdagArc from "./components/RiksdagArc.vue";
 import ThemeToggle from "./components/ThemeToggle.vue";
+import UpdateBanner from "./components/UpdateBanner.vue";
+import {
+  checkForUpdate,
+  simulateUpdate,
+  clearUpdate,
+  updateInfo,
+} from "./lib/updateCheck";
+
+const isDev = import.meta.env.DEV;
+
+function toggleUpdateSim() {
+  if (updateInfo.value && updateInfo.value.latest === "99.0.0") {
+    clearUpdate();
+  } else {
+    simulateUpdate();
+  }
+}
 
 const polls = ref<Poll[]>([]);
 const loading = ref(false);
@@ -56,7 +73,10 @@ async function remove(id: number) {
   await reload();
 }
 
-onMounted(reload);
+onMounted(() => {
+  reload();
+  checkForUpdate();
+});
 </script>
 
 <template>
@@ -74,6 +94,15 @@ onMounted(reload);
           Uppdaterad <span class="num">{{ lastFetchedLabel }}</span>
         </span>
         <ThemeToggle />
+        <button
+          v-if="isDev"
+          class="dev-btn"
+          :class="{ on: updateInfo?.latest === '99.0.0' }"
+          @click="toggleUpdateSim"
+          title="Simulera ny version (dev)"
+        >
+          🧪
+        </button>
         <button class="btn" :disabled="loading" @click="refresh">
           <span class="dot" :class="{ pulse: loading }"></span>
           {{ loading ? "Hämtar…" : "Uppdatera" }}
@@ -82,6 +111,8 @@ onMounted(reload);
     </header>
 
     <div v-if="error" class="banner err">{{ error }}</div>
+
+    <UpdateBanner />
 
     <KpiStrip :polls="polls" :window-days="windowDays" />
 
@@ -213,6 +244,24 @@ h1 {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
+}
+
+.dev-btn {
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.4;
+  transition: all 0.1s ease;
+}
+.dev-btn:hover {
+  background: var(--bg-elev);
+}
+.dev-btn.on {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border-color: var(--accent);
 }
 
 .banner.err {

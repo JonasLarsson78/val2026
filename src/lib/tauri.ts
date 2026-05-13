@@ -29,9 +29,18 @@ export interface RefreshReport {
   per_source: SourceReport[];
 }
 
+export interface UpdateInfo {
+  current: string;
+  latest: string;
+  update_available: boolean;
+  release_url: string;
+  published_at: string;
+}
+
 export const api = {
   listPolls: () => invoke<Poll[]>("list_polls"),
   pollCount: () => invoke<number>("poll_count"),
   refresh: () => invoke<RefreshReport>("refresh_polls"),
   deletePoll: (id: number) => invoke<void>("delete_poll", { id }),
+  checkUpdate: () => invoke<UpdateInfo>("check_update"),
 };
