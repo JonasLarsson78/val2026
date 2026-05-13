@@ -40,7 +40,7 @@ function sparkPath(r: PartyRisk) {
 
 <template>
   <Card
-    title="Spärrrisk"
+    title="Spärrisk"
     :meta="`${visible.length} av 8 partier i riskzon · 4 % spärr`"
   >
     <div v-if="visible.length === 0" class="empty">
