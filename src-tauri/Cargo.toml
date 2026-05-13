@@ -1,6 +1,6 @@
 [package]
 name = "val2026"
-version = "1.0.1"
+version = "1.0.2"
 description = "Opinionskoll inför riksdagsvalet 2026"
 authors = ["jonaslarsson"]
 edition = "2021"
