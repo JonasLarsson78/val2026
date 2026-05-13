@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { getVersion } from "@tauri-apps/api/app";
 import { api, type Poll, type RefreshReport } from "./lib/tauri";
 import TrendChart from "./components/TrendChart.vue";
 import PollOfPolls from "./components/PollOfPolls.vue";
@@ -32,6 +33,7 @@ function toggleUpdateSim() {
 
 const polls = ref<Poll[]>([]);
 const loading = ref(false);
+const appVersion = ref("");
 const lastReport = ref<RefreshReport | null>(null);
 const error = ref<string | null>(null);
 const windowDays = ref(30);
@@ -73,9 +75,14 @@ async function remove(id: number) {
   await reload();
 }
 
-onMounted(() => {
+onMounted(async () => {
   reload();
   checkForUpdate();
+  try {
+    appVersion.value = await getVersion();
+  } catch {
+    // not running inside Tauri shell
+  }
 });
 </script>
 
@@ -85,7 +92,10 @@ onMounted(() => {
       <div class="brand">
         <img src="/icon.png" alt="Val 2026" class="logo" />
         <div>
-          <h1>Val 2026</h1>
+          <h1>
+            Val 2026
+            <span v-if="appVersion" class="version num">v{{ appVersion }}</span>
+          </h1>
           <p class="sub">Opinionsmätningar inför riksdagsvalet</p>
         </div>
       </div>
@@ -195,6 +205,19 @@ h1 {
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.015em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.version {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  padding: 1px 7px;
+  border-radius: 999px;
+  letter-spacing: 0;
 }
 .sub {
   margin: 0;
