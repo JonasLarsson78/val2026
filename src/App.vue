@@ -11,6 +11,7 @@ import Vs2022 from "./components/Vs2022.vue";
 import ThresholdRisk from "./components/ThresholdRisk.vue";
 import CoalitionBuilder from "./components/CoalitionBuilder.vue";
 import RiksdagArc from "./components/RiksdagArc.vue";
+import ThemeToggle from "./components/ThemeToggle.vue";
 
 const polls = ref<Poll[]>([]);
 const loading = ref(false);
@@ -72,6 +73,7 @@ onMounted(reload);
         <span class="updated" v-if="lastFetched">
           Uppdaterad <span class="num">{{ lastFetchedLabel }}</span>
         </span>
+        <ThemeToggle />
         <button class="btn" :disabled="loading" @click="refresh">
           <span class="dot" :class="{ pulse: loading }"></span>
           {{ loading ? "Hämtar…" : "Uppdatera" }}
