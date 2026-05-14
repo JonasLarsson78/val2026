@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { CalendarDays, Users, Crown, ChartColumn } from "lucide-vue-next";
 import { PARTIES } from "../lib/parties";
 import { BLOCKS } from "../lib/blocks";
 import { distributeSeats } from "../lib/mandates";
@@ -48,13 +49,17 @@ const latestDate = computed(() => {
 <template>
   <div class="strip">
     <div class="kpi">
-      <span class="label">Val 2026</span>
+      <span class="label">
+        <CalendarDays :size="12" :stroke-width="2" />
+        Val 2026
+      </span>
       <span class="value num">{{ daysToElection }}</span>
       <span class="unit">dagar kvar</span>
     </div>
 
     <div v-for="b in blockSeats" :key="b.id" class="kpi">
       <span class="label">
+        <Users :size="12" :stroke-width="2" />
         <span class="dot" :style="{ background: b.color }"></span>
         {{ b.id === "tido" ? "Tidöblocket" : b.id === "rgop" ? "Röd-Grön + C" : "Röd-Grön" }}
       </span>
@@ -64,6 +69,7 @@ const latestDate = computed(() => {
 
     <div v-if="largest" class="kpi">
       <span class="label">
+        <Crown :size="12" :stroke-width="2" />
         <span class="dot" :style="{ background: largest.color }"></span>
         Största parti
       </span>
@@ -72,7 +78,10 @@ const latestDate = computed(() => {
     </div>
 
     <div class="kpi">
-      <span class="label">Mätningar</span>
+      <span class="label">
+        <ChartColumn :size="12" :stroke-width="2" />
+        Mätningar
+      </span>
       <span class="value num">{{ polls.length }}</span>
       <span class="unit">
         <span v-if="latestDate">senast {{ latestDate }}</span>
@@ -108,6 +117,9 @@ const latestDate = computed(() => {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.label :deep(svg) {
+  color: var(--fg-subtle);
 }
 .dot {
   width: 8px;

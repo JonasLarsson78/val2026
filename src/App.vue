@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { getVersion } from "@tauri-apps/api/app";
+import { BarChart3, Compass, RefreshCw, FlaskConical } from "lucide-vue-next";
 import { api, type Poll, type RefreshReport } from "./lib/tauri";
 import TrendChart from "./components/TrendChart.vue";
 import PollOfPolls from "./components/PollOfPolls.vue";
@@ -115,10 +116,10 @@ onMounted(async () => {
           @click="toggleUpdateSim"
           title="Simulera ny version (dev)"
         >
-          🧪
+          <FlaskConical :size="14" :stroke-width="1.75" />
         </button>
         <button class="btn" :disabled="loading" @click="refresh">
-          <span class="dot" :class="{ pulse: loading }"></span>
+          <RefreshCw :size="13" :stroke-width="2" :class="{ spin: loading }" />
           {{ loading ? "Hämtar…" : "Uppdatera" }}
         </button>
       </div>
@@ -134,6 +135,7 @@ onMounted(async () => {
         :class="{ active: tab === 'dashboard' }"
         @click="tab = 'dashboard'"
       >
+        <BarChart3 :size="14" :stroke-width="2" />
         Opinionsmätningar
       </button>
       <button
@@ -141,6 +143,7 @@ onMounted(async () => {
         :class="{ active: tab === 'quiz' }"
         @click="tab = 'quiz'"
       >
+        <Compass :size="14" :stroke-width="2" />
         Valkompass
       </button>
     </nav>
@@ -279,19 +282,14 @@ h1 {
   opacity: 0.6;
   cursor: progress;
 }
-.btn .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #34d399;
+.btn :deep(svg) {
   flex-shrink: 0;
 }
-.btn .dot.pulse {
-  animation: pulse 1.4s infinite;
+.btn .spin {
+  animation: spin 0.9s linear infinite;
 }
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .tabs {
@@ -304,6 +302,9 @@ h1 {
   align-self: flex-start;
 }
 .tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   background: transparent;
   border: none;
   color: var(--fg-muted);
@@ -324,21 +325,26 @@ h1 {
 }
 
 .dev-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
   background: var(--bg-hover);
   border: 1px solid var(--border);
   border-radius: 7px;
-  padding: 2px 8px;
   cursor: pointer;
-  font-size: 13px;
-  line-height: 1.4;
+  color: var(--fg-muted);
   transition: all 0.1s ease;
 }
 .dev-btn:hover {
   background: var(--bg-elev);
+  color: var(--fg);
 }
 .dev-btn.on {
   background: color-mix(in srgb, var(--accent) 15%, transparent);
   border-color: var(--accent);
+  color: var(--accent);
 }
 
 .banner.err {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Download, Sparkles } from "lucide-vue-next";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   updateInfo,
@@ -22,7 +23,10 @@ async function open() {
     class="banner"
   >
     <div class="left">
-      <span class="badge">Ny version</span>
+      <span class="badge">
+        <Sparkles :size="11" :stroke-width="2.25" />
+        Ny version
+      </span>
       <span class="text">
         <strong class="num">v{{ updateInfo.latest }}</strong> finns att ladda ned
         <span class="cur num">(du har v{{ updateInfo.current }})</span>
@@ -30,7 +34,10 @@ async function open() {
     </div>
     <div class="right">
       <button class="ghost" @click="dismissUpdate">Senare</button>
-      <button class="primary" @click="open">Ladda ner</button>
+      <button class="primary" @click="open">
+        <Download :size="13" :stroke-width="2.25" />
+        Ladda ner
+      </button>
     </div>
   </div>
 </template>
@@ -56,6 +63,7 @@ async function open() {
 .badge {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   padding: 2px 8px;
   background: var(--accent);
   color: var(--accent-fg);
@@ -99,6 +107,9 @@ button {
   background: var(--bg-hover);
 }
 .primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   background: var(--accent);
   color: var(--accent-fg);
 }
