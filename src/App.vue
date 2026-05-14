@@ -14,6 +14,10 @@ import CoalitionBuilder from "./components/CoalitionBuilder.vue";
 import RiksdagArc from "./components/RiksdagArc.vue";
 import ThemeToggle from "./components/ThemeToggle.vue";
 import UpdateBanner from "./components/UpdateBanner.vue";
+import QuizView from "./views/QuizView.vue";
+
+type Tab = "dashboard" | "quiz";
+const tab = ref<Tab>("dashboard");
 import {
   checkForUpdate,
   simulateUpdate,
@@ -124,6 +128,24 @@ onMounted(async () => {
 
     <UpdateBanner />
 
+    <nav class="tabs">
+      <button
+        class="tab"
+        :class="{ active: tab === 'dashboard' }"
+        @click="tab = 'dashboard'"
+      >
+        Opinionsmätningar
+      </button>
+      <button
+        class="tab"
+        :class="{ active: tab === 'quiz' }"
+        @click="tab = 'quiz'"
+      >
+        Valkompass
+      </button>
+    </nav>
+
+    <template v-if="tab === 'dashboard'">
     <KpiStrip :polls="polls" :window-days="windowDays" />
 
     <main class="grid">
@@ -168,6 +190,9 @@ onMounted(async () => {
       </span>
       <span class="muted">Källa: Wikipedia · Mandat: jämkad uddatalsmetod, 4% spärr</span>
     </footer>
+    </template>
+
+    <QuizView v-else />
   </div>
 </template>
 
@@ -267,6 +292,35 @@ h1 {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 3px;
+  align-self: flex-start;
+}
+.tab {
+  background: transparent;
+  border: none;
+  color: var(--fg-muted);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all 0.12s ease;
+}
+.tab:hover {
+  color: var(--fg);
+}
+.tab.active {
+  background: var(--bg-hover);
+  color: var(--fg);
+  font-weight: 600;
 }
 
 .dev-btn {
