@@ -1,39 +1,80 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { QUESTIONS, SCALE, type Position } from "../lib/quiz";
+import { Gauge } from "lucide-vue-next";
+import {
+  QUESTIONS,
+  QUIZ_SIZES,
+  SCALE,
+  type Position,
+  type QuizSize,
+} from "../lib/quiz";
 import { computeMatches } from "../lib/quizMatch";
 import { partyColors } from "../lib/theme";
 import Card from "../components/Card.vue";
 
-const STORAGE_KEY = "val2026.quiz.answers";
+const ANSWERS_KEY = "val2026.quiz.answers";
+const SIZE_KEY = "val2026.quiz.size";
 
-function load(): (Position | null)[] {
+function loadAnswers(): (Position | null)[] {
   if (typeof localStorage === "undefined") return Array(QUESTIONS.length).fill(null);
   try {
-    const v = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-    if (Array.isArray(v) && v.length === QUESTIONS.length) return v;
+    const v = JSON.parse(localStorage.getItem(ANSWERS_KEY) || "null");
+    if (Array.isArray(v)) {
+      const out = Array(QUESTIONS.length).fill(null) as (Position | null)[];
+      for (let i = 0; i < Math.min(v.length, QUESTIONS.length); i++) {
+        out[i] = v[i];
+      }
+      return out;
+    }
   } catch {}
   return Array(QUESTIONS.length).fill(null);
 }
 
-const answers = ref<(Position | null)[]>(load());
+function loadSize(): QuizSize {
+  if (typeof localStorage === "undefined") return 10;
+  const v = parseInt(localStorage.getItem(SIZE_KEY) || "10", 10);
+  return (QUIZ_SIZES.includes(v as QuizSize) ? v : 10) as QuizSize;
+}
+
+const answers = ref<(Position | null)[]>(loadAnswers());
+const size = ref<QuizSize>(loadSize());
 const current = ref(0);
 
-const answeredCount = computed(() => answers.value.filter((a) => a !== null).length);
-const progressPct = computed(() => (answeredCount.value / QUESTIONS.length) * 100);
-const completed = computed(() => answeredCount.value === QUESTIONS.length);
-const matches = computed(() => computeMatches(answers.value));
+const activeQuestions = computed(() => QUESTIONS.slice(0, size.value));
+const activeAnswers = computed(() => answers.value.slice(0, size.value));
+
+const answeredCount = computed(
+  () => activeAnswers.value.filter((a) => a !== null).length
+);
+const progressPct = computed(() => (answeredCount.value / size.value) * 100);
+const completed = computed(() => answeredCount.value === size.value);
+const matches = computed(() =>
+  computeMatches([
+    ...activeAnswers.value,
+    ...Array(QUESTIONS.length - size.value).fill(null),
+  ])
+);
 const top = computed(() => matches.value[0]);
 
 const showResults = ref(completed.value);
 
 watch(answers, (v) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(v));
+  localStorage.setItem(ANSWERS_KEY, JSON.stringify(v));
 }, { deep: true });
+
+watch(size, (v) => {
+  localStorage.setItem(SIZE_KEY, String(v));
+  if (current.value >= v) current.value = v - 1;
+  if (!completed.value) showResults.value = false;
+});
+
+function setSize(s: QuizSize) {
+  size.value = s;
+}
 
 function setAnswer(p: Position) {
   answers.value[current.value] = p;
-  if (current.value < QUESTIONS.length - 1) {
+  if (current.value < size.value - 1) {
     current.value++;
   } else if (completed.value) {
     showResults.value = true;
@@ -41,7 +82,7 @@ function setAnswer(p: Position) {
 }
 
 function go(idx: number) {
-  current.value = Math.max(0, Math.min(QUESTIONS.length - 1, idx));
+  current.value = Math.max(0, Math.min(size.value - 1, idx));
   showResults.value = false;
 }
 
@@ -49,17 +90,46 @@ function restart() {
   answers.value = Array(QUESTIONS.length).fill(null);
   current.value = 0;
   showResults.value = false;
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(ANSWERS_KEY);
 }
 
 function viewResults() {
   showResults.value = true;
 }
+
+const SIZE_LABEL: Record<QuizSize, string> = {
+  10: "Snabb",
+  15: "Medel",
+  20: "Omfattande",
+};
 </script>
 
 <template>
   <div class="quiz">
-    <Card v-if="!showResults" :title="`Fråga ${current + 1} av ${QUESTIONS.length}`" :meta="QUESTIONS[current].topic">
+    <div class="size-bar">
+      <span class="size-label">
+        <Gauge :size="13" :stroke-width="2" />
+        Antal frågor
+      </span>
+      <div class="size-seg">
+        <button
+          v-for="s in QUIZ_SIZES"
+          :key="s"
+          class="size-btn"
+          :class="{ active: size === s }"
+          @click="setSize(s)"
+        >
+          <span class="size-num num">{{ s }}</span>
+          <span class="size-tag">{{ SIZE_LABEL[s] }}</span>
+        </button>
+      </div>
+    </div>
+
+    <Card
+      v-if="!showResults"
+      :title="`Fråga ${current + 1} av ${size}`"
+      :meta="activeQuestions[current].topic"
+    >
       <template #actions>
         <button v-if="completed" class="results-btn" @click="viewResults">
           Se resultat →
@@ -70,7 +140,7 @@ function viewResults() {
         <div class="progress-fill" :style="{ width: progressPct + '%' }"></div>
       </div>
 
-      <p class="statement">{{ QUESTIONS[current].statement }}</p>
+      <p class="statement">{{ activeQuestions[current].statement }}</p>
 
       <div class="options">
         <button
@@ -96,7 +166,7 @@ function viewResults() {
         </button>
         <div class="dots">
           <button
-            v-for="(_, i) in QUESTIONS"
+            v-for="(_, i) in activeQuestions"
             :key="i"
             class="dot"
             :class="{
@@ -109,7 +179,7 @@ function viewResults() {
         </div>
         <button
           class="nav-btn"
-          :disabled="current === QUESTIONS.length - 1"
+          :disabled="current === size - 1"
           @click="go(current + 1)"
         >
           Nästa →
@@ -117,7 +187,7 @@ function viewResults() {
       </div>
     </Card>
 
-    <Card v-else title="Ditt resultat" :meta="`${answeredCount} av ${QUESTIONS.length} frågor besvarade`">
+    <Card v-else title="Ditt resultat" :meta="`${answeredCount} av ${size} frågor besvarade`">
       <template #actions>
         <button class="results-btn" @click="restart">Gör om</button>
         <button class="results-btn ghost" @click="showResults = false">
@@ -160,7 +230,8 @@ function viewResults() {
         Frågorna har en 5-gradig skala från Helt emot till Helt för. Partiernas
         positioner är hämtade från deras valplattformar och offentliga
         uttalanden. Procentsiffran är hur nära ditt svar ligger partiets
-        position på alla frågor du besvarat.
+        position på alla frågor du besvarat — fler frågor ger en mer nyanserad
+        bild men inte alltid ett "bättre" svar.
       </p>
     </Card>
   </div>
@@ -174,6 +245,73 @@ function viewResults() {
   max-width: 760px;
   margin: 0 auto;
   width: 100%;
+}
+
+.size-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  flex-wrap: wrap;
+}
+.size-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.size-label :deep(svg) {
+  color: var(--fg-subtle);
+}
+.size-seg {
+  display: inline-flex;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 1px;
+}
+.size-btn {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--fg-muted);
+  padding: 5px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.12s ease;
+}
+.size-btn:hover {
+  color: var(--fg);
+}
+.size-btn.active {
+  background: var(--bg-elev);
+  color: var(--fg);
+  box-shadow: var(--shadow-sm);
+}
+.size-num {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.size-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg-subtle);
+}
+.size-btn.active .size-tag {
+  color: var(--fg-muted);
 }
 
 .progress {
@@ -256,9 +394,6 @@ function viewResults() {
   font-weight: 500;
 }
 @media (max-width: 580px) {
-  .options {
-    grid-template-columns: repeat(5, 1fr);
-  }
   .opt-label {
     display: none;
   }
@@ -289,11 +424,14 @@ function viewResults() {
 }
 .dots {
   display: flex;
-  gap: 5px;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 60%;
 }
 .dot {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--border);
   border: none;
@@ -423,16 +561,5 @@ function viewResults() {
   color: var(--fg);
   line-height: 1.55;
   margin: 4px 0;
-}
-.meta-text.muted {
-  color: var(--fg-muted);
-  font-size: 11.5px;
-}
-.meta-text code {
-  font-family: var(--font-mono);
-  background: var(--bg-hover);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 11px;
 }
 </style>
