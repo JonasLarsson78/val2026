@@ -16,6 +16,7 @@ import { latestAverage } from "../lib/pollOfPolls";
 import type { Poll } from "../lib/tauri";
 import { baseAxis, chartColors, tooltip } from "../lib/chartTheme";
 import { blockColor, partyColors } from "../lib/theme";
+import { richPartyLabel } from "../lib/partyLogos";
 import Card from "./Card.vue";
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, MarkLineComponent]);
@@ -51,7 +52,7 @@ const option = computed(() => {
         return `<strong>${p.name}</strong> · ${p.value} mandat`;
       },
     },
-    grid: { left: 36, right: 40, top: 4, bottom: 4, containLabel: false },
+    grid: { left: 44, right: 40, top: 4, bottom: 4, containLabel: false },
     xAxis: {
       ...baseAxis(),
       type: "value",
@@ -64,7 +65,7 @@ const option = computed(() => {
       type: "category",
       data: orderedParties.value.map((p) => p.code),
       splitLine: { show: false },
-      axisLabel: { ...baseAxis().axisLabel, fontWeight: 600, color: c.fg },
+      axisLabel: { ...baseAxis().axisLabel, ...richPartyLabel(22), color: c.fg },
     },
     series: [
       {

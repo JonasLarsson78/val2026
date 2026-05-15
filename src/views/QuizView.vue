@@ -11,6 +11,7 @@ import {
 import { computeMatches } from "../lib/quizMatch";
 import { partyColors } from "../lib/theme";
 import Card from "../components/Card.vue";
+import PartyLogo from "../components/PartyLogo.vue";
 
 const ANSWERS_KEY = "val2026.quiz.answers";
 const SIZE_KEY = "val2026.quiz.size";
@@ -198,7 +199,7 @@ const SIZE_LABEL: Record<QuizSize, string> = {
       <div v-if="top" class="hero">
         <div class="hero-label">Du står närmast</div>
         <div class="hero-party">
-          <span class="hero-dot" :style="{ background: partyColors[top.code] }"></span>
+          <PartyLogo :code="top.code" :size="38" />
           <span class="hero-name">{{ top.name }}</span>
         </div>
         <div class="hero-pct num">{{ top.match.toFixed(0) }}<span class="pct-suffix">%</span></div>
@@ -208,8 +209,8 @@ const SIZE_LABEL: Record<QuizSize, string> = {
       </div>
 
       <div class="bars">
-        <div v-for="m in matches" :key="m.code" class="bar-row">
-          <span class="bar-code">{{ m.code }}</span>
+        <div v-for="m in matches" :key="m.code" class="bar-row" :title="m.name">
+          <PartyLogo :code="m.code" :size="22" />
           <span class="bar-name">{{ m.name }}</span>
           <div class="bar-track">
             <div
@@ -527,14 +528,10 @@ const SIZE_LABEL: Record<QuizSize, string> = {
 }
 .bar-row {
   display: grid;
-  grid-template-columns: 32px 1fr 1fr 60px;
+  grid-template-columns: 26px 1fr 1.2fr 60px;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 12px;
-}
-.bar-code {
-  font-weight: 700;
-  color: var(--fg);
 }
 .bar-name {
   color: var(--fg-muted);

@@ -7,6 +7,7 @@ import { distributeSeats } from "../lib/mandates";
 import { latestAverage } from "../lib/pollOfPolls";
 import type { Poll } from "../lib/tauri";
 import { blockColor, partyColor } from "../lib/theme";
+import PartyLogo from "./PartyLogo.vue";
 
 const props = defineProps<{ polls: Poll[]; windowDays: number }>();
 
@@ -70,10 +71,12 @@ const latestDate = computed(() => {
     <div v-if="largest" class="kpi">
       <span class="label">
         <Crown :size="12" :stroke-width="2" />
-        <span class="dot" :style="{ background: largest.color }"></span>
         Största parti
       </span>
-      <span class="value num">{{ largest.pct.toFixed(1) }}<span class="pct">%</span></span>
+      <div class="value-row">
+        <PartyLogo :code="largest.code as any" :size="28" />
+        <span class="value num">{{ largest.pct.toFixed(1) }}<span class="pct">%</span></span>
+      </div>
       <span class="unit">{{ largest.party?.name ?? largest.code }}</span>
     </div>
 
@@ -126,6 +129,11 @@ const latestDate = computed(() => {
   height: 8px;
   border-radius: 50%;
   display: inline-block;
+}
+.value-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .value {
   font-size: 26px;

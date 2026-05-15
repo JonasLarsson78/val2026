@@ -6,6 +6,7 @@ import { latestAverage } from "../lib/pollOfPolls";
 import { ELECTION_2022 } from "../lib/elections";
 import type { Poll } from "../lib/tauri";
 import Card from "./Card.vue";
+import PartyLogo from "./PartyLogo.vue";
 
 const props = defineProps<{ polls: Poll[]; windowDays: number }>();
 
@@ -40,9 +41,8 @@ function barWidth(d: number) {
 <template>
   <Card title="Förändring sedan valet 2022" meta="procentenheter">
     <div class="rows">
-      <div v-for="r in rows" :key="r.code" class="row">
-        <span class="dot" :style="{ background: r.color }"></span>
-        <span class="code">{{ r.code }}</span>
+      <div v-for="r in rows" :key="r.code" class="row" :title="r.name">
+        <PartyLogo :code="r.code" :size="20" />
         <span class="baseline num">{{ r.baseline.toFixed(1) }}</span>
         <span class="arrow">→</span>
         <span class="current num">{{ r.current.toFixed(1) }}</span>
@@ -77,9 +77,9 @@ function barWidth(d: number) {
 }
 .row {
   display: grid;
-  grid-template-columns: 14px 28px 44px 14px 44px 1fr 50px;
+  grid-template-columns: 24px 44px 14px 44px 1fr 50px;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 8px 4px;
   border-bottom: 1px solid var(--border);
   font-size: 12px;

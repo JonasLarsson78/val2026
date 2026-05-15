@@ -4,6 +4,7 @@ import { PARTIES } from "../lib/parties";
 import { partyColors } from "../lib/theme";
 import type { Poll } from "../lib/tauri";
 import Card from "./Card.vue";
+import PartyLogo from "./PartyLogo.vue";
 
 const props = defineProps<{ polls: Poll[] }>();
 const emit = defineEmits<{ (e: "delete", id: number): void }>();
@@ -38,8 +39,7 @@ function topPartyColor(poll: Poll) {
             <th>Fält</th>
             <th>Institut</th>
             <th v-for="p in PARTIES" :key="p.code" class="num party-th">
-              <span class="party-dot" :style="{ background: partyColors[p.code] }"></span>
-              {{ p.code }}
+              <PartyLogo :code="p.code" :size="18" />
             </th>
             <th class="num">n</th>
             <th></th>
@@ -106,19 +106,10 @@ th {
   background: var(--bg-elev);
 }
 .party-th {
-  font-weight: 600;
-  color: var(--fg);
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 11.5px;
+  text-align: center;
 }
-.party-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  margin-right: 4px;
-  vertical-align: middle;
+.party-th :deep(.party-logo) {
+  display: inline-flex;
 }
 .num {
   text-align: right;

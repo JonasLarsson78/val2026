@@ -5,6 +5,7 @@ import { partyColors } from "../lib/theme";
 import { atRisk, computeRisk, type PartyRisk } from "../lib/threshold";
 import type { Poll } from "../lib/tauri";
 import Card from "./Card.vue";
+import PartyLogo from "./PartyLogo.vue";
 
 const props = defineProps<{ polls: Poll[]; windowDays: number }>();
 
@@ -53,9 +54,8 @@ function sparkPath(r: PartyRisk) {
         class="row"
         :class="['lvl-' + r.level]"
       >
-        <div class="ident">
-          <span class="dot" :style="{ background: partyColors[r.code] }"></span>
-          <span class="code">{{ r.code }}</span>
+        <div class="ident" :title="r.name">
+          <PartyLogo :code="r.code" :size="26" />
         </div>
 
         <div class="meta">

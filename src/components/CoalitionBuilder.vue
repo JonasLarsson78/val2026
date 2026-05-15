@@ -7,6 +7,7 @@ import { latestAverage } from "../lib/pollOfPolls";
 import type { Poll } from "../lib/tauri";
 import Card from "./Card.vue";
 import ArcSeats from "./ArcSeats.vue";
+import PartyLogo from "./PartyLogo.vue";
 
 const props = defineProps<{ polls: Poll[]; windowDays: number }>();
 
@@ -112,10 +113,9 @@ const presets: { label: string; codes: PartyCode[] }[] = [
             : { borderColor: 'var(--border)' }
         "
         @click="toggle(p.code)"
-        :title="p.name"
+        :title="`${p.name} · ${p.seats} mandat`"
       >
-        <span class="dot" :style="{ background: p.color }"></span>
-        <span class="code">{{ p.code }}</span>
+        <PartyLogo :code="p.code" :size="20" />
         <span class="seats num">{{ p.seats }}</span>
       </button>
     </div>

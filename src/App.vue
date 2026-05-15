@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { getVersion } from "@tauri-apps/api/app";
-import { BarChart3, Compass, RefreshCw, FlaskConical } from "lucide-vue-next";
+import { BarChart3, Compass, Users, RefreshCw, FlaskConical } from "lucide-vue-next";
 import { api, type Poll, type RefreshReport } from "./lib/tauri";
 import TrendChart from "./components/TrendChart.vue";
 import PollOfPolls from "./components/PollOfPolls.vue";
@@ -16,8 +16,9 @@ import RiksdagArc from "./components/RiksdagArc.vue";
 import ThemeToggle from "./components/ThemeToggle.vue";
 import UpdateBanner from "./components/UpdateBanner.vue";
 import QuizView from "./views/QuizView.vue";
+import PartyProfiles from "./views/PartyProfiles.vue";
 
-type Tab = "dashboard" | "quiz";
+type Tab = "dashboard" | "quiz" | "parties";
 const tab = ref<Tab>("dashboard");
 import {
   checkForUpdate,
@@ -146,6 +147,14 @@ onMounted(async () => {
         <Compass :size="14" :stroke-width="2" />
         Valkompass
       </button>
+      <button
+        class="tab"
+        :class="{ active: tab === 'parties' }"
+        @click="tab = 'parties'"
+      >
+        <Users :size="14" :stroke-width="2" />
+        Partier
+      </button>
     </nav>
 
     <template v-if="tab === 'dashboard'">
@@ -195,7 +204,12 @@ onMounted(async () => {
     </footer>
     </template>
 
-    <QuizView v-else />
+    <QuizView v-else-if="tab === 'quiz'" />
+    <PartyProfiles
+      v-else-if="tab === 'parties'"
+      :polls="polls"
+      :window-days="windowDays"
+    />
   </div>
 </template>
 

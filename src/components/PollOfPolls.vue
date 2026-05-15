@@ -15,6 +15,7 @@ import { latestAverage } from "../lib/pollOfPolls";
 import { baseAxis, chartColors, tooltip } from "../lib/chartTheme";
 import { partyColors } from "../lib/theme";
 import { ELECTION_2022 } from "../lib/elections";
+import { richPartyLabel } from "../lib/partyLogos";
 import Card from "./Card.vue";
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, MarkLineComponent]);
@@ -50,7 +51,7 @@ const option = computed(() => {
         return `<strong>${code}</strong> · ${cur.toFixed(1)}%<br>2022: ${base.toFixed(2)}% (${sign}${delta.toFixed(1)})`;
       },
     },
-    grid: { left: 36, right: 80, top: 4, bottom: 4, containLabel: false },
+    grid: { left: 44, right: 80, top: 4, bottom: 4, containLabel: false },
     xAxis: {
       ...baseAxis(),
       type: "value",
@@ -63,7 +64,7 @@ const option = computed(() => {
       type: "category",
       data: sortedParties.value.map((p) => p.code),
       splitLine: { show: false },
-      axisLabel: { ...baseAxis().axisLabel, fontWeight: 600, color: c.fg },
+      axisLabel: { ...baseAxis().axisLabel, ...richPartyLabel(22), color: c.fg },
     },
     series: [
       {

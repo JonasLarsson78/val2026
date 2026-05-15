@@ -15,6 +15,7 @@ import type { Poll } from "../lib/tauri";
 import { rollingAverage } from "../lib/pollOfPolls";
 import { baseAxis, chartColors, dataZoomBottom, timeAxis, tooltip } from "../lib/chartTheme";
 import { partyColors } from "../lib/theme";
+import { partyLegendIcons } from "../lib/partyLogos";
 import Card from "./Card.vue";
 
 use([
@@ -86,15 +87,20 @@ const option = computed(() => {
       valueFormatter: (v: number) =>
         typeof v === "number" ? v.toFixed(1) + "%" : v,
     },
-    legend: {
-      data: PARTIES.map((p) => p.code),
-      top: 0,
-      icon: "roundRect",
-      itemWidth: 10,
-      itemHeight: 10,
-      itemGap: 14,
-      textStyle: { color: c.fg, fontSize: 12 },
-    },
+    legend: (() => {
+      const icons = partyLegendIcons();
+      return {
+        data: PARTIES.map((p) => ({
+          name: p.code,
+          icon: icons[p.code],
+        })),
+        top: 0,
+        itemWidth: 18,
+        itemHeight: 18,
+        itemGap: 14,
+        textStyle: { color: c.fg, fontSize: 12, padding: [0, 0, 0, 2] },
+      };
+    })(),
     grid: { left: 36, right: 8, top: 36, bottom: 50 },
     xAxis: timeAxis(),
     yAxis: {
